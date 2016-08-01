@@ -62,3 +62,44 @@ space = State $ parseSpace
 eatSpace :: Parser ()
 eatSpace = const () <$> many space
 
+-- Parse a specific character.
+char :: Char -> Parser Char
+char c = State parseChar
+    where parseChar [] = Nothing
+          parseChar (x:xs) | x == c = Just (c, xs)
+                           | otherwise = Nothing
+
+-- Parse one of our two supported operator symbols.
+op :: Parser (Expr -> Expr -> Expr)
+op = const Add <$> (char '+') <|> const Mul <$> (char '*')
+
+-- Succeed only if the end of the input has been reached.
+eof :: Parser ()
+eof = State parseEof
+    where parseEof [] = Just ((),[])
+          parseEof _  = Nothing
+
+-- Parse an infix arithmetic expression consisting of integers, plus
+-- signs, multiplication signs, and parentheses.
+parseExpr :: Parser Expr
+parseExpr = eatSpace *>
+            ((buildOp <$> nonOp <*> (eatSpace *> op) <*> parseExpr) <|> nonOp)
+    where buildOp x op y = x `op` y
+          nonOp = char '(' *> parseExpr <* char ')' <|> Const <$> num
+
+-- Run a parser over a 'String' returning the parsed value and the
+-- remaining 'String' data.
+execParser :: Parser a -> String -> Maybe (a, String)
+execParser (State f) = f
+
+-- Run a parser over a 'String' returning the parsed value.
+evalParser :: Parser a -> String -> Maybe a
+evalParser = (fmap fst .) . execParser
+
+-- Parse an arithmetic expression using the supplied semantics for
+-- integral constants, addition, and multiplication.
+parseExp :: (Integer -> a) -> (a -> a -> a) -> (a -> a -> a) -> String -> Maybe a
+parseExp con add mul = (convert <$>) . evalParser (parseExpr <* eof)
+    where convert (Const x) = con x
+          convert (Add x y) = add (convert x) (convert y)
+          convert (Mul x y) = mul (convert x) (convert y)
