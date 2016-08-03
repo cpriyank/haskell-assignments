@@ -19,3 +19,12 @@ eval (ExprT.Lit i) = i
 eval (ExprT.Add a b) = eval a + eval b
 eval (ExprT.Mul a b) = eval a * eval b
 
+-------------------------------------------------------------------------------
+-- Exercise 2
+
+-- evaluates arithmetic expressions given as a String,
+-- producing Nothing for inputs which are not well-formed expressions,
+-- and Just n for well-formed inputs that evaluate to n
+evalStr :: String -> Maybe Integer
+evalStr = fmap eval . parseExp ExprT.Lit ExprT.Add ExprT.Mul
+
