@@ -91,3 +91,21 @@ testMM = testExp
 testSat :: Maybe Mod7
 testSat = testExp
 
+-------------------------------------------------------------------------------
+-- Exercise 5
+
+instance Expr StackVM.Program where
+  lit i = [StackVM.PushI i]
+  add a b = a ++ b ++ [StackVM.Add]
+  mul a b = a ++ b ++ [StackVM.Mul]
+
+testProg :: Maybe StackVM.Program
+testProg = testExp
+
+compile2 :: String -> Either String StackVal
+compile2 = stackVM . fromMaybe [] . compile
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
+
+
