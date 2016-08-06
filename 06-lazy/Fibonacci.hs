@@ -62,3 +62,21 @@ streamMap f (Cons y ys) = Cons (f y) (streamMap f ys)
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed f y = Cons y (streamFromSeed f (f y))
 
+--------------------------------------------------------------------------------
+-- Exercise 5
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons y ys) zs = Cons y (interleaveStreams zs ys)
+
+-- > 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4
+ruler :: Stream Integer
+ruler = startRuler 0
+
+-- > 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4
+-- Eric D.Burgess - http://oeis.org/A001511
+startRuler :: Integer -> Stream Integer
+startRuler y = interleaveStreams (streamRepeat y) (startRuler (y+1))
+
