@@ -50,3 +50,15 @@ instance Show a => Show (Stream a) where
 streamToList :: Stream a -> [a]
 streamToList (Cons y c) = y : streamToList c
 
+--------------------------------------------------------------------------------
+-- Exercise 4
+
+streamRepeat :: a -> Stream a
+streamRepeat y = Cons y (streamRepeat y)
+
+streamMap :: (a -> b) -> Stream a -> Stream b
+streamMap f (Cons y ys) = Cons (f y) (streamMap f ys)
+
+streamFromSeed :: (a -> a) -> a -> Stream a
+streamFromSeed f y = Cons y (streamFromSeed f (f y))
+
