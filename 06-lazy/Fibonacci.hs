@@ -40,3 +40,13 @@ fibo a b = a : fibo b (a+b)
 fibs4 :: [Integer]
 fibs4 = fibo 0 1
 
+--------------------------------------------------------------------------------
+-- Exercise 3
+data Stream a = Cons a (Stream a)
+
+instance Show a => Show (Stream a) where
+  show = show . take 20 . streamToList
+
+streamToList :: Stream a -> [a]
+streamToList (Cons y c) = y : streamToList c
+
