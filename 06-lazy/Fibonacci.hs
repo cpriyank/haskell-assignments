@@ -80,3 +80,22 @@ ruler = startRuler 0
 startRuler :: Integer -> Stream Integer
 startRuler y = interleaveStreams (streamRepeat y) (startRuler (y+1))
 
+--------------------------------------------------------------------------------
+-- Exercise 6
+x :: Stream Integer
+x = Cons 0 (Cons 1 (streamRepeat 0))
+
+instance Num (Stream Integer) where
+    fromInteger n = Cons n (streamRepeat 0)
+    negate (Cons y ys) = Cons (-y) (negate ys)
+    -- | A*B = a0*b0+x*(a0*B' + A' * B)
+    (+) (Cons y ys) (Cons z zs) = Cons (y+z) (ys + zs)
+    (*) (Cons y ys) s@(Cons z zs) = Cons (y*z) (streamMap (*y) zs + (ys*s))
+
+instance Fractional (Stream Integer) where
+    (/) (Cons y ys) (Cons z zs) = q
+        where q = Cons (y `div` z) (streamMap (`div` z) (ys - q * zs))
+
+fibs10 :: Stream Integer
+fibs10 = x / (1 - x - x * x)
+
