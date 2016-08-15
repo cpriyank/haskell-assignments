@@ -21,3 +21,13 @@ oneOrMore p = (:) <$> p <*> zeroOrMore p
 -- equivalent to:
 {-oneOrMore p = liftA2 (:) p (zeroOrMore p-}
 
+------------------------------------------------------------
+--  2. Utilities
+------------------------------------------------------------
+
+spaces :: Parser String
+spaces = zeroOrMore (satisfy isSpace)
+
+ident :: Parser String
+ident = liftA2 (:) (satisfy isAlpha) (zeroOrMore $ satisfy isAlphaNum)
+
