@@ -63,3 +63,14 @@ battle bf = dice (att+def) >>= \dc ->
             return (remArmy bf (battleOutcome (att, def) dc))
             where (att, def) = getTroops bf
 
+-- | Returns number of fighting troops in a single battle.
+-- Assuming only armies with each atleast 1 troops are sent.
+getTroops :: Battlefield -> (Army, Army)
+getTroops (Battlefield att def) = (attTroop, defTroop)
+  where attTroop = if att >= 4 then 3 else att-1
+        defTroop = if def >= 2 then 2 else def
+
+remArmy :: Battlefield -> (Army, Army) -> Battlefield
+remArmy (Battlefield att def) (lostAtt, lostDef)
+  = Battlefield (att - lostAtt) (def - lostDef)
+
