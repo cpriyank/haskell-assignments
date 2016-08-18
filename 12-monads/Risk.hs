@@ -47,3 +47,19 @@ success :: [Battlefield] -> Rand StdGen Double
 success bfs = return $ fromIntegral (length x)  / fromIntegral (length bfs)
   where x = filter ((== 0) . defenders) bfs
 
+-- | Simulate an invasion attempt which consist of repeating battles until no
+-- defenders are remaining, or fewer than two attackers.
+invade :: Battlefield -> Rand StdGen Battlefield
+invade bf
+  | attackers bf < 2 || defenders bf <= 0 = return bf
+  | otherwise = battle bf >>= invade
+
+-- | Simulate a single battle in a game of Risk. Simulate randomly rolling the
+-- appropriate number of dice and update the two armies. It is assumed that
+-- each player attacks or defend with the maximum number of units they are
+-- allowed.
+battle :: Battlefield -> Rand StdGen Battlefield
+battle bf = dice (att+def) >>= \dc ->
+            return (remArmy bf (battleOutcome (att, def) dc))
+            where (att, def) = getTroops bf
+
