@@ -74,3 +74,19 @@ remArmy :: Battlefield -> (Army, Army) -> Battlefield
 remArmy (Battlefield att def) (lostAtt, lostDef)
   = Battlefield (att - lostAtt) (def - lostDef)
 
+-- | Assume that the first @att@ DieValues are for the attacker
+-- Assume att + def = length dc
+battleOutcome :: (Army, Army) -> [DieValue] -> (Army, Army)
+battleOutcome (att, def) dc = compareDice sortedDice (0, 0)
+  where sortedDice = fmapPair (reverse . sort) (splitAt att dc)
+
+fmapPair :: (a -> b) -> (a, a) -> (b, b)
+fmapPair f (a, b) = (f a, f b)
+
+compareDice :: ([DieValue], [DieValue]) -> (Army, Army) -> (Army, Army)
+compareDice ([], _) troops = troops
+compareDice (_, []) troops = troops
+compareDice (a:as, d:ds) (attL, defL)
+  | a > d     = compareDice (as, ds) (attL, defL+1)
+  | otherwise = compareDice (as, ds) (attL+1, defL)
+
